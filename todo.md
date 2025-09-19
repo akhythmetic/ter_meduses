@@ -7,7 +7,9 @@ Mettez les choses à faire ci-dessous.
 
 ## 📌 Tâches à réaliser
 
--   [ ] Centraliser les raccourcis dans un fichier `resources.md` plutôt que dans un répertoire (car inutilisable sur GitHub).
+-   [x] Centraliser les raccourcis dans un fichier `resources.md` plutôt que dans un répertoire (car inutilisable sur GitHub).
+
+-   [ ] Prendre en main les frameworks et outils (YOLO, HOG, DeepSort, TRex.run, TrackMate) en les testant.
 
 ------------------------------------------------------------------------
 
