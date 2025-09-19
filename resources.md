@@ -4,7 +4,7 @@ Ce fichier centralise tous les liens utiles : documentation, tutoriels pratiques
 
 ------------------------------------------------------------------------
 
-## 📝 Documentation officielle
+## 📝 Documentation
 
 -   [TRex.run documentation officiel](https://trex.run/docs/contents.html)\
 -   [TRex.run Documentation sur eLife](https://elifesciences.org/articles/64000)\
@@ -13,14 +13,17 @@ Ce fichier centralise tous les liens utiles : documentation, tutoriels pratiques
 
 ## 🎓 Tutoriels & guides pratiques
 
--   [YOLO (ytb)](https://www.youtube.com/watch?v=r0RspiLG260)\
+-   [TrackMate Fiji (ytb)](https://www.youtube.com/watch?v=kVYBiHqNmzo)
 
-------------------------------------------------------------------------
+-   [Yolo python (ytb)](https://www.youtube.com/watch?v=fu2tfOV9vbY)
+
+-   [ByteTrack python (ytb)](https://www.youtube.com/watch?v=6LGpf-a1K1Q)
 
 ## 🌍 Vulgarisation & explications simples
 
 -   [HOG (ytb)](https://www.youtube.com/watch?v=28xk5i1_7Zc)\
 -   [HOG bis (ytb)](https://www.youtube.com/watch?v=XmO0CSsKg88)\
+-   [YOLO (ytb)](https://www.youtube.com/watch?v=ag3DLKsl2vk&t=296s)\
 
 ------------------------------------------------------------------------
 

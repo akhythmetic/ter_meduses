@@ -9,7 +9,7 @@ Mettez les choses à faire ci-dessous.
 
 -   [x] Centraliser les raccourcis dans un fichier `resources.md` plutôt que dans un répertoire (car inutilisable sur GitHub).
 
--   [ ] Prendre en main les frameworks et outils (YOLO, HOG, DeepSort, TRex.run, TrackMate) en les testant.
+-   [ ] Prendre en main les frameworks et outils (YOLO, HOG, DeepSort (ou byteTrack), TRex.run, TrackMate) en les testant.
 
 ------------------------------------------------------------------------
 
