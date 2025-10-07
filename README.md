@@ -10,7 +10,7 @@
 
 -   **Enzo Martinelli**\
 -   **Anthony Sureau**\
--   **Moustapha Ndiaye**\
+-   **Moustapha Ndiaye** - 📧 [anthony.sureau\@gmail.com](mailto:anthony.sureau@gmail.com){.email}\
 -   **Chamss‑Eddine Louati** — 📧 [louati.chamsseddine\@gmail.com](mailto:louati.chamsseddine@gmail.com){.email}
 
 ------------------------------------------------------------------------
