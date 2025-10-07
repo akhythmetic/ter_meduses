@@ -19,11 +19,17 @@ Ce fichier centralise tous les liens utiles : documentation, tutoriels pratiques
 
 -   [ByteTrack python (ytb)](https://www.youtube.com/watch?v=6LGpf-a1K1Q)
 
+-   [TRex.run (ytb)](https://www.youtube.com/@TRexTracker){.uri}\
+
+------------------------------------------------------------------------
+
 ## 🌍 Vulgarisation & explications simples
 
 -   [HOG (ytb)](https://www.youtube.com/watch?v=28xk5i1_7Zc)\
+
 -   [HOG bis (ytb)](https://www.youtube.com/watch?v=XmO0CSsKg88)\
--   [YOLO (ytb)](https://www.youtube.com/watch?v=ag3DLKsl2vk&t=296s)\
+
+-   [YOLO (ytb)](https://www.youtube.com/watch?v=ag3DLKsl2vk&t=296s)
 
 ------------------------------------------------------------------------
 
