@@ -9,7 +9,7 @@
 ## 👥 Team
 
 -   **Enzo Martinelli**\
--   **Anthony Sureau**\
+-   **Anthony Sureau** — 📧 [anthony.sureau\@gmail.com](mailto:anthony.sureau@gmail.com){.email}\
 -   **Moustapha Ndiaye**\
 -   **Chamss‑Eddine Louati** — 📧 [louati.chamsseddine\@gmail.com](mailto:louati.chamsseddine@gmail.com){.email}
 
