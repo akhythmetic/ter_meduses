@@ -1,2 +1,4 @@
 #historique rstudio
 .Rhistory
+#environnement virtuel jupyter
+notebook/.venv/
