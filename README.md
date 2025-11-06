@@ -38,6 +38,8 @@ This project is part of our **Supervised Study and Research Work (TER)** in the 
 ## 📁 Repository Contents
 
 -   `README.md` – Project presentation (you are here)
+-   **liste_videos_drone_meduses** — 📂 [Google Drive du projet](https://drive.google.com/drive/folders/1GIFMu1AbWd0BkONNfI3Xu-VThs4Ru28-?usp=share_link)
+
 
 ------------------------------------------------------------------------
 
