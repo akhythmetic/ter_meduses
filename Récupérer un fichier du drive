@@ -1,0 +1,21 @@
+import zipfile
+from pathlib import Path
+from google.colab import drive
+
+# Monter le Drive
+drive.mount('/content/drive')
+
+#Les différents chemins
+drive_path = Path("...")  # celui du fichier ZIP
+extract_to = Path("...") #Celui du dossier de sortie
+
+#Vérifie que le dossier existe
+if not drive_path.exists():
+    raise FileNotFoundError(f"Fichier introuvable : {drive_path}")
+
+#Décompresse le fichier
+extract_to.mkdir(parents=True, exist_ok=True)
+with zipfile.ZipFile(drive_path, 'r') as zf:
+    zf.extractall(extract_to)
+
+print(f"Archive extraite dans : {extract_to.resolve()}")
