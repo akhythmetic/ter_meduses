@@ -1,0 +1,334 @@
+---
+title: "analyse_pulsation_trajectoire"
+author: "louati"
+date: "2025-11-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Analyse pulsation et trajectoire
+
+## A-Generation de donnée en attendant la donnée des collegues
+
+```{r}
+# Nombre de méduses et de frames
+n_meduses <- 5    # par exemple 5 méduses
+n_frames  <- 100  # 100 frames
+```
+
+```{r}
+# Colonne frame : répète 1,2,...,n_frames pour chaque méduse
+df <- data.frame(
+  frame = rep(1:n_frames, times = n_meduses)
+)
+```
+
+```{r}
+# Colonne id_meduse : 1,1,...,1 (n_frames fois), puis 2,2,...,2, etc.
+df$id_meduse <- rep(1:n_meduses, each = n_frames)
+```
+
+```{r}
+head(df)
+table(df$id_meduse)
+```
+
+```{r}
+# Colonnes x et y : positions aléatoires pour l'instant
+largeur_image  <- 1920
+hauteur_image  <- 1080
+
+set.seed(123)  # pour avoir les mêmes valeurs à chaque exécution
+
+df$x <- runif(nrow(df), min = 0, max = largeur_image)
+df$y <- runif(nrow(df), min = 0, max = hauteur_image)
+```
+
+```{r}
+# Colonne area : superficie de la méduse (pixels²)
+set.seed(123)  # pour reproductibilité
+
+# ------------------------------------------------------------
+# Paramètres "physiques" de la vidéo / pulsations
+# ------------------------------------------------------------
+fps <- 6           # nombre de frames par seconde
+# Fréquence de pulsation en pulsations par seconde.
+# 0.5 puls/s => 1 pulsation toutes les 2 secondes
+# 1.5 puls/s => 1 pulsation toutes les 2/3 de seconde
+min_freq <- 0.5    # borne basse : 0.5 pulsation / seconde
+max_freq <- 1.5    # borne haute : 1.5 pulsation / seconde
+freq_sd <- 0.05   # écart-type du bruit de fréquence : plus petit => plus lisse
+```
+
+```{r}
+
+# ------------------------------------------------------------
+# Paramètres par méduse : taille de base et amplitude
+# ------------------------------------------------------------
+# baseline_by_meduse : taille moyenne (ouverte/contractée au milieu)
+# baseline_by_meduse = une valeur moyenne par méduse.
+baseline_by_meduse <- rlnorm(
+  n_meduses,
+  meanlog = log(500),  # moyenne autour de 500
+  sdlog   = 0.2        # faible dispersion -> tailles assez stables entre méduses
+)
+baseline_by_meduse
+```
+
+```{r}
+# amp_rel_by_meduse : amplitude relative (20% à 40% de la taille de base)
+# C’est la variation entre la taille moyenne et le pic (ou le creux).
+amp_rel_by_meduse <- runif(
+  n_meduses,
+  min = 0.2,   # 20% de variation
+  max = 0.4    # 40% de variation
+)
+amp_rel_by_meduse
+```
+
+```{r}
+# Cette ligne sert à donner à chaque méduse un “retard/avance” différent dans sa pulsation pour qu’elles ne pulsent pas toutes ensemble.
+phase_init <- runif(n_meduses, min = 0, max = 2*pi)
+phase_init
+```
+
+```{r}
+
+# ------------------------------------------------------------
+# Construction de la colonne area avec pulsations
+# ------------------------------------------------------------
+df$area <- NA_real_
+head(df$area)
+```
+
+```{r}
+for (i in 1:n_meduses) {
+  # indices des lignes correspondant à la méduse i
+  
+  #vecteur qui ressence tous les frame où la meduse i apparait
+  idx <- which(df$id_meduse == i) 
+  #nombre de frame sur sur les quel la meduse i apparait
+  n_i <- length(idx) 
+  
+  baseline <- baseline_by_meduse[i]   # taille moyenne de cette méduse i
+  amp_rel  <- amp_rel_by_meduse[i]    # amplitude relative de la meduse i
+  phi      <- phase_init[i]           # phase courante de la meduse i
+  
+  area_i <- numeric(n_i) # Vecteur vide pour stocker toutes les surfaces
+   
+   # 🔹 1) fréquence initiale pour cette méduse
+  freq_k <- runif(1, min = min_freq, max = max_freq)
+  
+  for (k in 1:n_i) {
+    # 🔹 2) petite variation autour de la fréquence précédente
+    freq_k <- freq_k + rnorm(1, mean = 0, sd = freq_sd)
+    
+    # 🔹 3) on recadre pour rester entre min_freq et max_freq
+    freq_k <- max(min_freq, min(max_freq, freq_k))
+    
+    # 🔹 4) on avance dans la phase en fonction de la fréquence
+    phi <- phi + 2 * pi * (freq_k / fps)
+    
+    # 🔹 5) surface sinusoidale
+    area_theo <- baseline * (1 + amp_rel * sin(phi))
+    
+    # 🔹 6) petit bruit d’observation
+    bruit <- rnorm(1, mean = 0, sd = baseline * 0.05)
+    
+    area_i[k] <- area_theo + bruit
+  }
+  
+  # On évite les surfaces trop petites
+  area_i <- pmax(area_i, baseline * 0.3)
+  
+  df$area[idx] <- area_i
+}
+```
+
+### Resultat de la génération
+
+```{r}
+head(df)
+str(df)
+```
+
+```{r}
+meduses <- unique(df$id_meduse)
+
+par(mar = c(4, 4, 2, 1))   # réduit les marges
+
+# Préparer une grille de plots : 1 ligne par méduse
+par(mfrow = c(length(meduses), 1))
+
+for (id in meduses) {
+  plot(df$frame[df$id_meduse == id],
+       df$area[df$id_meduse == id],
+       type = "l",
+       xlab = paste("Frame (méduse", id, ")"),
+       ylab = "Surface",
+       main = paste("Pulsation de la méduse", id))
+}
+
+```
+
+## B- Calcule de la frequence pour chaque meduse à chaque frame
+
+```{r}
+library(pracma)  # contient la fonction findpeaks()
+```
+
+```{r}
+## On trie le dataframe par id_meduse puis par frame
+## (pour avoir les images dans l'ordre du temps pour chaque méduse)
+df <- df[order(df$id_meduse, df$frame), ]
+head(df)
+```
+
+```{r}
+## On crée une nouvelle colonne pour stocker la fréquence
+df$freq <- NA_real_
+```
+
+```{r}
+## liste des méduses présentes dans le df
+ids <- unique(df$id_meduse)
+
+for (id in ids) {
+  
+  ## indices des lignes correspondant à cette méduse
+  idx <- which(df$id_meduse == id)
+  
+  ## sous-dataframe pour cette méduse uniquement
+  d <- df[idx, ]
+  
+  ## vecteur d'aire au cours du temps (pour cette méduse)
+  a <- d$area
+  
+  ## ------------ 1) DÉTECTION DES PICS D'AREA ------------
+  ## findpeaks renvoie une matrice :
+  ## colonne 2 = position du pic dans le vecteur 'a'
+  #on utilise que la 2e colonne position du pic correspondant à l'index dans le vecteur area
+  pk <- findpeaks(a, sortstr = FALSE) 
+  
+  ## Si aucun pic, ou moins de 2 pics -> impossible de définir une fréquence
+  if (is.null(pk) || nrow(pk) < 2) {
+    next  # on laisse freq = NA pour cette méduse et on passe à la suivante
+  }
+  
+  peak_indices <- pk[, 2]                 # indices des pics dans 'a'
+  peak_frames  <- d$frame[peak_indices]   # numéros de frame où il y a un pic
+  
+  ## ------------ 2) PÉRIODE ET FRÉQUENCE ENTRE LES PICS ------------
+  ## période (en nombre d'images) entre deux pics successifs
+  periods <- diff(peak_frames)            # length = nb_pics - 1
+  
+  ## fréquence (en oscillations par image)
+  freqs <- 1 / periods
+  
+  ## ------------ 3) FRÉQUENCE POUR CHAQUE IMAGE ------------
+  ## On a une fréquence pour chaque intervalle entre pics.
+  ## On interpole ces fréquences pour obtenir une valeur à chaque frame.
+  ## approx() fait une interpolation linéaire :
+  ##  - x  : frames où la fréquence est connue
+  ##  - y  : fréquence connue à ces frames
+  ##  - xout : toutes les frames de la méduse
+  ##  - rule = 2 : on prolonge la première et la dernière valeur en dehors
+  approx_out <- approx(
+    #approx() prend les fréquences connues au niveau des pics d’arrivée et les étale     sur toutes les images intermédiaires, pour te donner une fréquence à chaque     frame. 
+    x   = peak_frames[-1],  # on associe chaque freq à la frame du 2e pic
+    y   = freqs,
+    xout = d$frame,
+    rule = 2
+  )
+  
+  ## On remet ces fréquences dans le df d'origine
+  df$freq[idx] <- approx_out$y
+}
+
+```
+
+```{r}
+df
+```
+
+```{r}
+library(ggplot2)
+
+ggplot(df, aes(x = frame, y = freq)) +
+  geom_line() +
+  facet_wrap(~ id_meduse) +
+  labs(
+    x = "Frame",
+    y = "Fréquence",
+    title = "Fréquence d'oscillation par méduse"
+  )
+```
+
+## C- Calcule des vecteurs directionnels
+
+```{r}
+# On s'assure que le tableau est bien trié
+df <- df[order(df$id_meduse, df$frame), ]
+
+# On crée les deux colonnes dans df
+df$dx <- NA_real_
+df$dy <- NA_real_
+
+# Liste de toutes les méduses
+ids <- unique(df$id_meduse)
+
+for (id in ids) {
+  
+  # lignes appartenant à cette méduse
+  idx <- which(df$id_meduse == id)
+  d   <- df[idx, ]
+  
+  # Calcul du vecteur de direction
+  dx <- c(NA, diff(d$x))   # NA pour la 1ère frame (pas de frame précédente)
+  dy <- c(NA, diff(d$y))
+  
+  # On remet dans df
+  df$dx[idx] <- dx
+  df$dy[idx] <- dy
+}
+```
+
+```{r}
+df
+```
+
+## D- Calcule de la vitesse par frame
+
+```{r}
+df$vitesse <- sqrt(df$dx^2 + df$dy^2)
+df
+```
+
+### Vitesse moyenne de chaque meduse en Pixel/frame
+
+```{r}
+tapply(df$vitesse, df$id_meduse, mean, na.rm = TRUE)
+```
+
+## E- PCA
+
+```{r}
+dfQuanti <- df[, c("id_meduse","x", "y", "area", "freq", "dx", "dy", "vitesse")]
+dfQuanti
+```
+
+```{r}
+#y a t-il des variables manquantes ?  
+sum(is.na(dfQuanti))
+```
+
+```{r}
+df[!complete.cases(df), ]
+```
+
+```{r}
+str(df)
+```
