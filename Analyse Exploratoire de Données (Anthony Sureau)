@@ -1,0 +1,209 @@
+#Les Imports utilisés
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+import numpy as np
+import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+file_path = ("Chemin du fichier")
+info =pd.read_excel(file_path)
+
+print(info.describe()) #Pour faire une analyse statistique du jeu de donnée
+
+#Nettoyage des données
+
+info.isna().sum() #Permet de regarder combien il y a de NAN
+
+info[info.isna().any(axis=1)] #Permet de voir les lignes qui ont une NAN dans leur colonnes
+
+info = info.drop(columns=['Unnamed: 26']) #Suppression de la colonne "Unnamed: 26" qui ne servait à rien
+
+info = info.drop(index=0).reset_index(drop=True) #Suppression de la première colonne car nous n'avons que la date et pas d'autres informations
+
+colonnes_videos = [
+    'Vidéo 1 (nom)',
+    'Vidéo 2 (nom)',
+    'Vidéo 3 (nom)',
+    'Vidéo 4 (nom)',
+    'Vidéo 5 (nom)',
+    'Vidéo 6 (nom)'
+]
+
+info[colonnes_videos] = info[colonnes_videos].fillna('non observé')
+#Changement des valeurs pour les vidéos. Pour indiquer qu'elles n'ont pas été observés. On garde les NAN pour les informations pour les méduses
+#car remplacer par zéro revient à dire qu'on a observer zéro méduse et cela faussera les données 
+#Première méthode utilisé alors qu'on aurait pu tout simplement retirer les vidéos n'ayant aucune information de chaque ligne (Mauvaise compréhension du jeu de donnée au départ)
+
+info = info.iloc[:6, :29].reset_index(drop=True)
+#Pour garder seulement les valeurs d'observations et pas les totaux qui seront recalculés par la suite. On ne garde que les totaux de chaque ligne
+
+#Utilisation du long car les graphique n'étaient pas "bon" car seulement quelque point
+
+#code nécessaire pour une meilleure analyse
+
+#Nettoyage des noms du fichiers pour éviter les espaces ou autres
+info.columns = (
+    info.columns.astype(str)
+    .str.strip()
+    .str.replace(r"\s+\.", ".", regex=True)
+    .str.replace(r"\s+", " ", regex=True)
+)
+
+def is_present(x):
+    if pd.isna(x):
+        return False
+    if isinstance(x, str) and x.strip().lower() in {"", "non observé", "non observe"}:
+        return False
+    return True #Code pour nettoyer les données en gérant les problèmes comme NAN ou comme "non observé"
+
+#Code pour convertir la durée en seconde. Gère différents cas
+def duration_to_seconds(x):
+    if pd.isna(x): #Ici le cas des NAN
+        return np.nan
+    if isinstance(x, pd.Timedelta): 
+        return x.total_seconds() #Ici converti une durée en format pandas en une durée total de secondes
+    if isinstance(x, datetime.time): 
+        return x.hour * 3600 + x.minute * 60 + x.second #Ici converti les heures en secondes
+    if isinstance(x, str):
+        x = x.strip()
+        if x == "" or x.lower() in {"non observé", "non observe"}:
+            return np.nan #Ici gère le cas ou la valeur est vide ou à ignoré (avec le cas du "non observé")
+        td = pd.to_timedelta(x, errors="coerce")
+        return np.nan if pd.isna(td) else td.total_seconds()
+    return np.nan #Ici gère le cas ou X est une chaîne de caractère pour essayer de la transformer en durée
+
+#Les colonnes dites "socle", défini deux variables qui contienent le nom des colonnes. #Ici on a gardé la faute d'orthographe pour le mot qualité comme présent sur le jeu de donnée
+date_col = "Date marquage"
+qual_col = "Qaulité vidéo (reflets etc)"
+
+#Création d'un tableau long pour qu'une ligne correspond à une vidéo
+suffixes = ["", ".1", ".2", ".3", ".4", ".5"]
+rows = []
+
+for _, r in info.iterrows():
+    d = r.get(date_col)
+    q = r.get(qual_col)
+
+    for i, suf in enumerate(suffixes, start=1):
+        vcol = f"Vidéo {i} (nom)"
+        dcol = f"Durée exploitable{suf}"
+        mcol = f"nbr méduses marquées{suf}"
+        ncol = f"nbr méduses non marquées{suf}"
+
+        vname = r.get(vcol)
+        if not is_present(vname): #Si le nom est absent, il passe à la suivante
+            continue
+        #Ici avec ces trois lignes, ils convertis et normalise les données
+        duree_sec = duration_to_seconds(r.get(dcol)) 
+        marquees = pd.to_numeric(r.get(mcol), errors="coerce")
+        non_marquees = pd.to_numeric(r.get(ncol), errors="coerce")
+
+        rows.append({
+            "Date": pd.to_datetime(d, errors="coerce"),
+            "Qualite": q,
+            "Video_n": i,
+            "Video_nom": vname,
+            "Duree_sec": duree_sec,
+            "Duree_min": duree_sec / 60 if pd.notna(duree_sec) else np.nan,
+            "Marquees": marquees,
+            "Non_marquees": non_marquees,
+            "Total_meduses": (marquees if pd.notna(marquees) else 0) + (non_marquees if pd.notna(non_marquees) else 0),
+        })
+
+long = pd.DataFrame(rows)
+#A la fin le code parcours tout les noms des vidéos en gardant leurs informations. Il sépare chaque vidéo des lignes pour n'avoir plus que une ligne par vidéo
+#Il fait un append à une liste python qui va stocker les différentes informations et une fois fini on crée le dataframe
+
+total_marquees = 16
+total_non_marquees = 46
+total_meduses = total_marquees + total_non_marquees
+
+rows.append({
+    "total_marquees": total_marquees,
+    "total_non_marquees": total_non_marquees
+})
+
+#Ici on a assigné des valeurs que l'on connaissait déjà
+
+#Premier Graphique
+
+plt.figure(figsize=(6,4))
+sns.histplot(long["Duree_min"].dropna(), bins=10) #On utilise le dropna() pour vraiment retirer toutes les valeurs manquantes pour que ça ne pose pas de problème. Le bins sert à définir le nombre de "barres" de l'histogramme, permet de regrouper les valeurs en intervalles.
+plt.title("Distribution des durées exploitables (par vidéo)")
+plt.xlabel("Durée (minutes)")
+plt.ylabel("Nombre de vidéos")
+
+#Code pour télécharger l'image après exécution
+out_png = "Distribution_duree_exploitable.png"
+plt.savefig(out_png, dpi=300, bbox_inches="tight")
+plt.tight_layout() #sert à ajuster automatiquement les marges et l'espacement
+plt.show()
+
+#Deuxième Graphique
+
+plt.figure(figsize=(6,4))
+sns.scatterplot(data=long, x="Duree_min", y="Total_meduses", hue="Qualite", s=80) #Ici hue permet de dire qu'on prend la couleur par rapport à la variable qualité. Le s sert à définir la taille des points
+plt.title("Total de méduses selon la durée, par qualité")
+plt.xlabel("Durée (minutes)")
+plt.ylabel("Total méduses (Marquées et non)")
+plt.tight_layout()
+plt.show()
+
+#Troisième Graphique
+
+plt.figure(figsize=(8,5))
+sns.boxplot(data=long, x="Qualite", y="Total_meduses", palette="Set3") #Ici utilisation d'une palette de couleur
+plt.title("Nombre total de méduses selon la qualité vidéo")
+plt.xticks(rotation=45) #Sert à faire pivoter les étiquettes
+plt.ylabel("Total méduses")
+plt.xlabel("Qualité vidéo")
+plt.show()
+
+#Quatrième Graphique
+
+plt.figure(figsize=(10,5))
+sns.lineplot(data=long.sort_values("Date"), #Le sort_values sert à trier les données par rapport à la colonne "Date"
+             x="Date", y="Total_meduses", marker="o") #Ici le marker sert à afficher un marqueur sur chaque point de la courbe
+plt.title("Évolution du nombre total de méduses au fil du temps")
+plt.xlabel("Date")
+plt.ylabel("Nombre total de méduses")
+plt.grid(True, linestyle="--", alpha=0.5) #Sert à afficher une grille
+plt.show()
+
+#Cinquième Graphique
+
+sns.scatterplot(data=long, x="Marquees", y="Non_marquees", color="purple")
+plt.title("Corrélation entre méduses marquées et non marquées")
+plt.xlabel("Méduses marquées")
+plt.ylabel("Méduses non marquées")
+plt.grid(True)
+plt.show()
+
+#Matrice de Corrélation
+
+vars_corr = long[["Duree_min", "Marquees", "Non_marquees", "Total_meduses"]].copy()
+
+#Ici Force les valeurs de chaque variable à devenir numériques
+for c in ["Duree_min", "Marquees", "Non_marquees", "Total_meduses"]:
+    vars_corr[c] = pd.to_numeric(vars_corr[c], errors="coerce")
+
+#ICi enlève les lignes ou toutes les colonnes sont NAN
+vars_corr = vars_corr.dropna(how="all")
+
+
+corr_spearman = vars_corr.corr(method="spearman")
+corr_pearson = vars_corr.corr(method="pearson")
+
+#Ici Calcul des corrélation de Spearman et de pearson
+print("Corrélation Spearman:\n", corr_spearman)
+print("\nCorrélation Pearson:\n", corr_pearson)
+
+plt.figure(figsize=(5,4))
+sns.heatmap(corr_spearman, annot=True, vmin=-1, vmax=1, cmap="coolwarm") #Construction de la matrice de corrélation. annot permet d'afficher la valeur numérique dans chaque case
+#le vmin et le vmax fixe l'échelle des couleurs de -1 à 1. cmap choisi la palette de couleur
+plt.title("Corrélations")
+plt.tight_layout()
+plt.show()
