@@ -1,0 +1,46 @@
+#Test sur la vidéo
+
+#Les imports
+import cv2
+import matplotlib.pyplot as plt
+from skimage.feature import hog
+from skimage import exposure
+import numpy as np
+
+#Charger la vidéo
+video_path = "Chemin de la vidéo"
+
+cap = cv2.VideoCapture(video_path) #Permer d'ouvrir la vidéo avec cv2 
+
+#Vérifier que la vidéo s'est bien ouverte
+if not cap.isOpened():
+    print("Impossible de lire la vidéo")
+    exit()
+
+frame_count = 0
+
+while True: #Cette boucle permet de parcourir la vidéo image par image
+    ret, frame = cap.read()
+    if not ret:
+        break  # fin de la vidéo
+
+    frame_count += 1 #Un count
+
+    #Convertir en niveaux de gris
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    #Extraire HOG. Il calcule les descripteurs et permet de réaliser les hogs
+    features, hog_image = hog(
+        gray,
+        orientations=9,
+        pixels_per_cell=(8, 8),
+        cells_per_block=(2, 2),
+        visualize=True,
+        block_norm="L2-Hys"
+    )
+
+    #Ce code sert à remettre à l’échelle les intensités pour que les hog_image soit mieux visible
+    hog_image_rescaled = exposure.rescale_intensity(hog_image, in_range=(0, 10))
+
+cap.release() #Ferme la vidéo 
+cv2.destroyAllWindows() #Ferme tout les fenêtre openCV ouverte
