@@ -1,0 +1,31 @@
+import cv2
+import os
+
+from google.colab import drive
+drive.mount("chemin", force_remount=True)
+
+video_path = "Chemin du fichier"
+
+output_folder = "frames_meduses" 
+frame_interval = 6               # extraire 1 image toutes les N frames (ici toutes les frames) (6 car 1 était trop long)
+
+os.makedirs(output_folder, exist_ok=True) #Permet de crée le dossier
+
+cap = cv2.VideoCapture(video_path) #L'objet cap permet de lire la vidéo frame par frame
+frame_count = 0 #Initialisation des comptes
+saved_count = 0
+
+while True: #Cette boucle sert à parcourir toutes les frames de la vidéo
+    ret, frame = cap.read()
+    if not ret:
+        break  # fin de la vidéo
+
+    if frame_count % frame_interval == 0: #Ici calcul de modulo pour savoir quel frame gardé. Si le nombre de frame est égale à 6 comme l'intervalle alors le modulo est égale à 0 et on conserve cette frame sinon on passe à la suivante
+        filename = os.path.join(output_folder, f"frame_{saved_count:05d}.jpg")
+        cv2.imwrite(filename, frame)
+        saved_count += 1
+
+    frame_count += 1
+
+cap.release()
+print(f"Extraction terminée : {saved_count} images sauvegardées dans '{output_folder}'") #Permet de nous indiquer que l'extraction est fini, et combien de frames a été extraites et dans quel dossier
