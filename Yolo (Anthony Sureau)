@@ -1,0 +1,68 @@
+# Mettre à jour le pip
+!pip install --upgrade pip
+
+# Installer ultralytics 
+!pip install ultralytics
+
+from ultralytics import YOLO
+
+#Création du dossier data.yaml qui est important pour l'éxecution de yolo
+#Ce dossier contient les informations de ou on peut trouver le dataset. Ou se trouve les dossiers train et val ainsi que le nombre de classe (ici une seule)
+
+yaml_content = """
+path: "Chemin du fichier du dataset"
+train: train/images
+val: val/images
+
+nc: 1
+names: ['meduse']
+"""
+
+with open("/content/drive/MyDrive/dataset/data.yaml", "w") as f:
+    f.write(yaml_content)
+
+print("data.yaml créé")
+
+#Execution du modèle yolov8n
+model = YOLO("yolov8n.pt")
+
+results = model.train(
+    data="Chemin du fichier data.yaml",
+    epochs=50,      #Nombre de tours durant l'entraînement (Mettre une trop grosse valeur risque de surapprentissage)  
+    imgsz=640,      #Ici redimensionne les images
+    batch=8,        #Ici permet de traiter 8 images par itérations
+    name="meduse_detector",
+    project="runs/detect"
+)
+
+
+#Code pour créer des zips des fichier important de yolo
+
+!zip -r sample_data.zip /content/sample_data
+!zip -r yolov8n.zip /content/yolov8n.pt
+!zip -r yolo11n.zip /content/yolo11n.pt
+!zip -r runs_yolo.zip /content/runs
+
+#Téléchargement de ces fichiers 
+
+from google.colab import files
+files.download("sample_data.zip")
+files.download("yolov8n.zip")
+files.download("yolo11n.zip")
+filies.download("runs_yolo.zip")
+
+#Ici test avec un autre modèle Yolo adapté pour les petit jeu de donnée
+
+from ultralytics import YOLO
+
+model = YOLO("yolov8s.pt")
+
+results = model.train(
+    data="/content/drive/MyDrive/dataset/data.yaml",
+    epochs=50,
+    imgsz=640,
+    batch=4,  
+    name="meduse_detector_v8s",
+    project="runs/detect"
+)
+
