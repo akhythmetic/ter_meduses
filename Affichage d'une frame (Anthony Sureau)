@@ -1,0 +1,10 @@
+import matplotlib.pyplot as plt
+import cv2
+#Ce code permet de regarder à quoi ressemble la frame que nous avons extraites de la vidéo
+
+img = cv2.imread("nom du dossier/frame_00010.jpg")
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+plt.imshow(img)
+plt.title("Exemple de frame extraite")
+plt.axis("off")
+plt.show()
