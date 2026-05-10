@@ -1,0 +1,4 @@
+date,run_name,dataset,model,imgsz,epochs,batch_used,mAP50,mAP50_95,precision,recall,f1,train_time_s,notes
+2026-05-08T10:20:58,baseline_yolov8n_640,current,yolov8n.pt,640,50,-1,0.5346,0.2021,0.7502,0.5163,0.6117,409,preset=baseline
+2026-05-08T12:53:51,test_imgsz_effect_1ep,current,yolov8n.pt,1280,1,6,0.8134,0.373,0.7749,0.9387,0.849,63,1-epoch imgsz test batch=6 auto 57pct VRAM
+2026-05-08T13:44:26,yolov8n_1280_e150,current,yolov8n.pt,1280,150,-1,0.9566,0.6156,0.9011,0.8949,0.898,2843,preset=baseline
