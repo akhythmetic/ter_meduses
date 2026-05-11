@@ -87,12 +87,31 @@ par un fil de 2m) présentes dans la vidéo `results/DJI0013_annotated_clean.mp4
 
 ---
 
-## Récap final (à compléter à la fin de l'annotation)
+## Récap final (validé journée 3)
 
-- Balisée #1 → IDs [767 , 936 , 946 , 958 , 1165 , 1217 ] 
-- Balisée #2 → IDs [ 771, 814 , 1220 , 1371 ] 
-- Balisée #3 → IDs [764 ] 
-- Balisée #4 → IDs [787, 863 , 942 , 981 , 1038 , 1089 , 1193 , 1257 , 1344 ]
-- Balisée #5 → IDs [847 ,832 , 945 , 1146 , 1178 , 1237 , 1288 ]
-- *(Balisée #6 → IDs [ ])* — optionnel si plus que prévu
+- Balisée #1 → IDs [767, 936, 946, 958, 1165, 1217]
+- Balisée #2 → IDs [771, 1220, 1371]
+- Balisée #3 → IDs [764]
+- Balisée #4 → IDs [787, 863, 942, 981, 1038, 1089, 1193, 1257, 1344]
+- Balisée #5 → IDs [847, 945, 1178, 1237, 1288]
+
+### IDs exclus (avec justification)
+
+- **ID 814** (était Balisée #2) → EXCLU : double-détection de 771 sur 14 frames
+  simultanées. 814 ne dure que 14 frames au total = tracker fantôme.
+- **ID 832** (était Balisée #5) → EXCLU : seulement 2 frames, y=1611 aberrant
+  par rapport au reste du groupe (fourchette 952–1274). Probablement pas
+  la même méduse.
+- **ID 1146** (était Balisée #5) → ABSENT du CSV filtré (< 10 frames, filtré
+  comme bruit lors du pré-traitement).
+
+### Note méthodologique
+
+Les distances inter-IDs élevées (800–1200 px) dans les groupes #1, #2, #4, #5
+s'expliquent par le mouvement du drone sur la durée totale (~1300 frames). Les
+IDs de chaque groupe sont strictement séquentiels (pas de chevauchement temporel
+significatif), ce qui confirme qu'ils correspondent à une même méduse physique
+suivie de bout en bout. Cette dérive doit être prise en compte dans les futures
+analyses de vitesse absolue (les coordonnées pixel ne sont pas fixes dans le
+référentiel monde).
 

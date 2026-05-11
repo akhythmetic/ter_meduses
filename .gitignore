@@ -45,3 +45,6 @@ data/current/images/
 
 # Claude Code internal
 .claude/
+
+# Export local pour Drive (non versionné)
+drive_export/

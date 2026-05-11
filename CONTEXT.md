@@ -71,3 +71,47 @@
 Commence par explorer le repo, lis les notebooks/scripts existants,
 et fais-moi un état des lieux du code (qu'est-ce qui tourne, qu'est-ce
 qui est cassé, qu'est-ce qui manque). Ensuite on attaque la priorité 1.
+
+---
+
+## Annotation balisées DJI_0013 (journée 3 — 2026-05-11)
+
+### Résumé
+Annotation manuelle des méduses balisées dans `DJI_0013` à partir du
+CSV filtré (frame ≥ 200, IDs avec ≥ 10 frames, soit 61 IDs sur 91).
+Validation de cohérence spatiale et temporelle réalisée avant remplissage.
+
+### Mapping final validé
+| Balisée | IDs | Nb frames |
+|---------|-----|-----------|
+| Balisée #1 | 767, 936, 946, 958, 1165, 1217 | ~1182 |
+| Balisée #2 | 771, 1220, 1371 | ~1262 |
+| Balisée #3 | 764 | ~1020 |
+| Balisée #4 | 787, 863, 942, 981, 1038, 1089, 1193, 1257, 1344 | ~763 |
+| Balisée #5 | 847, 945, 1178, 1237, 1288 | ~600 |
+
+### IDs exclus
+- **ID 814** (Balisée #2) : double-détection fantôme de l'ID 771 sur
+  14 frames simultanées (= toute sa durée). Exclure évite un doublon
+  dans les statistiques.
+- **ID 832** (Balisée #5) : 2 frames seulement, y=1611 aberrant
+  (reste du groupe entre 952 et 1274). Très probablement une mauvaise
+  détection transitoire.
+- **ID 1146** : absent du CSV filtré (< 10 frames, éliminé comme bruit).
+
+### Limite identifiée — drift du drone
+Les distances inter-IDs apparentes (800–1200 px) ne reflètent PAS
+un problème de cohérence mais le mouvement du drone sur ~1300 frames.
+Les IDs sont séquentiels (aucun chevauchement significatif).
+**Impact pour l'analyse de vitesse** : les coordonnées pixel brutes
+ne sont pas dans un référentiel monde fixe. Il faudra soit :
+a) utiliser les métadonnées GPS/IMU du drone pour stabiliser, ou
+b) travailler uniquement sur la vitesse relative (entre méduses dans
+   la même frame), ou
+c) limiter l'analyse aux segments courts où le drone est quasi-statique.
+
+### Fichiers produits
+- `results/trajectories_DJI0013_final.csv` — CSV avec colonnes
+  `marked` (0/1) et `balisee_id` ("Balisée #N" ou vide)
+- `src/fill_marked_column.py` — script reproductible de remplissage
+- `results/IDs_to_annotate_DJI0013.md` — annotation source mise à jour
