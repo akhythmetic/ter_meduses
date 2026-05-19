@@ -1,0 +1,5 @@
+path: C:/Users/Martinelli/Documents/GitHub/ter_meduses/data/seg
+train: images/train
+val: images/val
+nc: 1
+names: ['meduse']

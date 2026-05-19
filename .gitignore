@@ -35,6 +35,10 @@ TER analyse videos meduses/
 # Dataset images (volumineuses ~1.4 GB)
 data/current/images/
 
+# Seg dataset — images + masques bruts (volumineuses)
+data/seg/images/
+data/seg/masks_raw/
+
 # Caches YOLO (binaires, générés automatiquement)
 *.cache
 
@@ -48,3 +52,7 @@ data/current/images/
 
 # Export local pour Drive (non versionné)
 drive_export/
+
+# Logs et outputs de debug (générés automatiquement)
+logs/
+debug/

@@ -1,0 +1,6 @@
+balisee_id,n_pts,n_pics,freq_pics_hz,freq_fft_brute_hz,freq_fft_detrend_hz
+Balisee_1,466,21,1.049,0.1495,0.1495
+Balisee_2,516,18,0.8991,0.1994,0.1994
+Balisee_3,601,19,0.9491,0.1995,0.2992
+Balisee_4,586,27,1.3487,0.1496,0.3491
+Balisee_5,598,23,1.1489,0.1496,0.1496
