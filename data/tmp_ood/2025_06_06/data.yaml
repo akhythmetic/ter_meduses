@@ -1,0 +1,6 @@
+names:
+- meduse
+nc: 1
+path: C:\Users\Martinelli\Documents\GitHub\ter_meduses\data\tmp_ood\2025_06_06
+train: images
+val: images

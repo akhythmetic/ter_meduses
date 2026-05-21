@@ -1,0 +1,5 @@
+context,model,mAP50,mAP50_95,precision,recall,dataset
+val_DJI0013,dji0013_only,0.96,,0.89,0.9,"1153 frames, 1 session"
+val_DJI0013,enriched,0.957,0.606,0.895,0.9,"1493 frames, 3 sessions"
+test_2025_08_08,dji0013_only,0.0018,0.0008,0.0275,0.0416,"1153 frames, 1 session"
+test_2025_08_08,enriched,0.1721,0.0648,0.825,0.1961,"1493 frames, 3 sessions"

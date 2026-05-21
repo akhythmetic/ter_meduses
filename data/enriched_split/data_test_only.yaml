@@ -1,0 +1,7 @@
+names:
+- meduse
+nc: 1
+path: C:/Users/Martinelli/Documents/GitHub/ter_meduses/data/enriched_split
+test: test/images
+train: test/images
+val: test/images
